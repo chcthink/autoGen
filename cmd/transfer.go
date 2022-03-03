@@ -169,3 +169,11 @@ var existModel = map[string]struct{}{
 	"is_delete":  {},
 	"version":    {},
 }
+
+func isNumber(typeName string) bool {
+	switch typeName {
+	case "int", "int64", "float64":
+		return true
+	}
+	return false
+}

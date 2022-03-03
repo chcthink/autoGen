@@ -17,7 +17,7 @@ const (
 )
 
 const daoTableFunc = `
-	// get table name
+	// TableName get table name
 	func (b {{UpperTableName}}) TableName() string {
 		return "{{TableName}}"
 	}`
@@ -37,7 +37,7 @@ func genDAO(tableName string) (dom string) {
 	}
 	tName := toCamel(tableName)
 	c += daoTableFunc
-	return strings.Replace(c, "{{UpperTableName}}", tName, -1)
+	return strings.Replace(strings.Replace(c, "{{UpperTableName}}", tName, -1), "{{TableName}}", tableName, -1)
 }
 
 func generateStruct(tableName string, typeID int) (creates string, err error) {
@@ -87,7 +87,11 @@ func goHandler(cs []columns) (str string, err error) {
 		if _, ok = existModel[c.ColumnName]; ok {
 			col["dao.Model"] = "dao.Model `gorm:\"embedded\"`"
 		} else {
-			col[c.ColumnName] = fmt.Sprintf("%s %s `json:\"%s\" default:\"%s\"`",
+			defaultValue := "'%s'"
+			if isNumber(ct.TransferType) {
+				defaultValue = "%s"
+			}
+			col[c.ColumnName] = fmt.Sprintf("%s %s `json:\"%s\" gorm:\"default:"+defaultValue+"\"`",
 				toCamel(c.ColumnName), ct.TransferType, c.ColumnName, c.Default)
 			if c.Remark != "" {
 				col[c.ColumnName] += " // " + c.Remark
@@ -111,7 +115,7 @@ func apiHandler(cs []columns) (str string, err error) {
 	for _, c := range cs {
 		ts, ok := sql2tsType[c.DataType]
 		if !ok {
-			fmt.Println(c)
+			//fmt.Println(c)
 			err = errors.New("暂不支持" + c.DataType)
 			return
 		}
