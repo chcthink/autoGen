@@ -18,7 +18,7 @@ const (
 
 const daoTableFunc = `
 	// TableName get table name
-	func (b {{UpperTableName}}) TableName() string {
+	func (b *{{UpperTableName}}) TableName() string {
 		return "{{TableName}}"
 	}`
 
