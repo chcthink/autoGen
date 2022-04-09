@@ -80,7 +80,6 @@ func goHandler(cs []columns) (str string, err error) {
 	for _, c := range cs {
 		ct, ok := sql2goType[c.DataType]
 		if !ok {
-			fmt.Println(c)
 			err = errors.New("暂不支持" + c.DataType)
 			return
 		}
@@ -90,6 +89,9 @@ func goHandler(cs []columns) (str string, err error) {
 			defaultValue := "'%s'"
 			if isNumber(ct.TransferType) {
 				defaultValue = "%s"
+			}
+			if c.Default == "" {
+				c.Default = "''"
 			}
 			col[c.ColumnName] = fmt.Sprintf("%s %s `json:\"%s\" gorm:\"default:"+defaultValue+"\"`",
 				toCamel(c.ColumnName), ct.TransferType, c.ColumnName, c.Default)
