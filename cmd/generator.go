@@ -90,11 +90,11 @@ func goHandler(cs []columns) (str string, err error) {
 			if isNumber(ct.TransferType) {
 				defaultValue = "%s"
 			}
-			if c.Default == "" {
-				c.Default = "''"
+			fmtStr := "%s %s `json:\"%s\" gorm:\"default:" + defaultValue + "\"`"
+			if c.Default == "" && isNumber(ct.TransferType) {
+				c.Default = "0"
 			}
-			col[c.ColumnName] = fmt.Sprintf("%s %s `json:\"%s\" gorm:\"default:"+defaultValue+"\"`",
-				toCamel(c.ColumnName), ct.TransferType, c.ColumnName, c.Default)
+			col[c.ColumnName] = fmt.Sprintf(fmtStr, toCamel(c.ColumnName), ct.TransferType, c.ColumnName, c.Default)
 			if c.Remark != "" {
 				col[c.ColumnName] += " // " + c.Remark
 			}
