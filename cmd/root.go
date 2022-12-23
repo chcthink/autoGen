@@ -18,6 +18,7 @@ var (
 	tags      string
 	admin     bool
 	model     bool
+	adminList bool
 )
 
 var rootCmd = &cobra.Command{
@@ -53,6 +54,10 @@ var rootCmd = &cobra.Command{
 				path[tag] = tag + table + ".ts"
 				path["admin/src/api/"+tags+"/model/"] = "admin/src/api/" + tags + "/model/" + table + ".ts"
 			}
+			if adminList {
+				tag = "gen_temp/" + tags + "/"
+				path[tag] = tag + table + ".ts"
+			}
 			for k, v := range path {
 				_ = os.MkdirAll(k, 0777)
 				f, err := os.Create(v)
@@ -67,6 +72,9 @@ var rootCmd = &cobra.Command{
 					} else {
 						insertStr = genAPIMethod(table)
 					}
+				}
+				if adminList {
+					insertStr, _ = generateStruct(table, ADMINLIST)
 				}
 				if err != nil {
 					fmt.Println(err)
@@ -105,6 +113,7 @@ func init() {
 	rootCmd.PersistentFlags().StringVarP(&tags, "tags", "g", "", "tags")
 	rootCmd.PersistentFlags().BoolVarP(&admin, "admin", "a", false, "is admin")
 	rootCmd.PersistentFlags().BoolVarP(&model, "model", "m", false, "dao model")
+	rootCmd.PersistentFlags().BoolVarP(&adminList, "admin_list", "A", false, "admin list")
 }
 
 func Execute() {

@@ -1,11 +1,11 @@
 package cmd
 
-type columnType struct {
+type ColumnType struct {
 	TransferType   string
 	TransferInsert func(string) string
 }
 
-var sql2goType = map[string]columnType{
+var sql2goType = map[string]ColumnType{
 	"tinyint": {
 		TransferType: "int",
 	},
@@ -83,7 +83,7 @@ var sql2goType = map[string]columnType{
 	},
 }
 
-var sql2tsType = map[string]columnType{
+var sql2tsType = map[string]ColumnType{
 	"tinyint": {
 		TransferType: "number",
 	},
@@ -176,4 +176,14 @@ func isNumber(typeName string) bool {
 		return true
 	}
 	return false
+}
+
+var defaultWorkModel = map[string]struct{}{
+	"id":          {},
+	"is_delete":   {},
+	"create_by":   {},
+	"modify_by":   {},
+	"version":     {},
+	"create_time": {},
+	"modify_time": {},
 }

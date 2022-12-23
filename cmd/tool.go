@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"errors"
 	"strings"
 	"unicode"
 )
@@ -15,6 +16,15 @@ func toCamel(s string) (tName string) {
 			r[0] -= 32
 			tName += string(r)
 		}
+	}
+	return
+}
+
+func IsSupportType(dataType string) (ts ColumnType, err error) {
+	ts, ok := sql2tsType[dataType]
+	if !ok {
+		err = errors.New("暂不支持" + dataType)
+		return
 	}
 	return
 }

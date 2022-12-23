@@ -14,6 +14,7 @@ var mysql *sql.DB
 const (
 	ADMIN = iota
 	STRUCT
+	ADMINLIST
 )
 
 const daoTableFunc = `
@@ -71,6 +72,11 @@ func generateStruct(tableName string, typeID int) (creates string, err error) {
 		if err != nil {
 			return "", err
 		}
+	case ADMINLIST:
+		str, err = apiListHandler(cs)
+		if err != nil {
+			return "", err
+		}
 	}
 	return str, err
 }
@@ -78,12 +84,12 @@ func generateStruct(tableName string, typeID int) (creates string, err error) {
 func goHandler(cs []columns) (str string, err error) {
 	col := make(map[string]string)
 	for _, c := range cs {
-		ct, ok := sql2goType[c.DataType]
-		if !ok {
-			err = errors.New("暂不支持" + c.DataType)
+		var ct ColumnType
+		ct, err = IsSupportType(c.DataType)
+		if err != nil {
 			return
 		}
-		if _, ok = existModel[c.ColumnName]; ok {
+		if _, ok := existModel[c.ColumnName]; ok {
 			col["dao.Model"] = "dao.Model `gorm:\"embedded\"`"
 		} else {
 			defaultValue := "'%s'"
@@ -115,10 +121,9 @@ func goHandler(cs []columns) (str string, err error) {
 func apiHandler(cs []columns) (str string, err error) {
 	var col []string
 	for _, c := range cs {
-		ts, ok := sql2tsType[c.DataType]
-		if !ok {
-			//fmt.Println(c)
-			err = errors.New("暂不支持" + c.DataType)
+		var ts ColumnType
+		ts, err = IsSupportType(c.DataType)
+		if err != nil {
 			return
 		}
 		fs := fmt.Sprintf("  %s: %s;", c.ColumnName, ts.TransferType)
@@ -128,6 +133,22 @@ func apiHandler(cs []columns) (str string, err error) {
 		col = append(col, fs)
 	}
 	return fmt.Sprintf("export interface {{UpperTableName}} {\n%s\n}\n", strings.Join(col, "\n")), err
+}
+
+func apiListHandler(cs []columns) (st string, err error) {
+	var col []string
+	for _, c := range cs {
+		if _, exist := defaultWorkModel[c.ColumnName]; !exist {
+			_, err = IsSupportType(c.DataType)
+			if err != nil {
+				return
+			}
+			fs := fmt.Sprintf("  {\n    title: '%s',\n    dataIndex: '%s',\n  },",
+				c.Remark, c.ColumnName)
+			col = append(col, fs)
+		}
+	}
+	return fmt.Sprintf("export const columns: BasicColumn[] = [ \n%s\n]", strings.Join(col, "\n")), err
 }
 
 func genAPIMethod(tablename string) (str string) {
