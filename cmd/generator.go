@@ -15,6 +15,7 @@ const (
 	ADMIN = iota
 	STRUCT
 	ADMINLIST
+	GOLIST
 )
 
 const daoTableFunc = `
@@ -74,6 +75,11 @@ func generateStruct(tableName string, typeID int) (creates string, err error) {
 		}
 	case ADMINLIST:
 		str, err = apiListHandler(cs)
+		if err != nil {
+			return "", err
+		}
+	case GOLIST:
+		str, err = apiListGoHandler(cs)
 		if err != nil {
 			return "", err
 		}
@@ -149,6 +155,26 @@ func apiListHandler(cs []columns) (st string, err error) {
 		}
 	}
 	return fmt.Sprintf("export const columns: BasicColumn[] = [ \n%s\n]", strings.Join(col, "\n")), err
+}
+
+func apiListGoHandler(cs []columns) (st string, err error) {
+	var col []string
+	for _, c := range cs {
+		if _, exist := defaultWorkModel[c.ColumnName]; !exist {
+			_, err = IsSupportType(c.DataType)
+			if err != nil {
+				return
+			}
+			fs := fmt.Sprintf(`  {
+    Key: '%s',
+    Title: '%s',
+  },`,
+				c.ColumnName, c.Remark)
+			col = append(col, fs)
+		}
+	}
+	return fmt.Sprintf("var exportcolumns = []exportColumns{ \n%s\n}", strings.Join(col, "\n")), err
+
 }
 
 func genAPIMethod(tablename string) (str string) {

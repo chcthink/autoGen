@@ -57,6 +57,7 @@ var rootCmd = &cobra.Command{
 			if adminList {
 				tag = "gen_temp/" + tags + "/"
 				path[tag] = tag + table + ".ts"
+				path["gen_temp/"+tags+"d/"] = "gen_temp/" + tags + "d/" + table + ".go"
 			}
 			for k, v := range path {
 				_ = os.MkdirAll(k, 0777)
@@ -74,7 +75,11 @@ var rootCmd = &cobra.Command{
 					}
 				}
 				if adminList {
-					insertStr, _ = generateStruct(table, ADMINLIST)
+					if strings.Contains(k, ".ts") {
+						insertStr, _ = generateStruct(table, ADMINLIST)
+					} else {
+						insertStr, _ = generateStruct(table, GOLIST)
+					}
 				}
 				if err != nil {
 					fmt.Println(err)
