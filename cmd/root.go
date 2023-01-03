@@ -75,7 +75,7 @@ var rootCmd = &cobra.Command{
 					}
 				}
 				if adminList {
-					if strings.Contains(k, ".ts") {
+					if strings.Contains(v, ".ts") {
 						insertStr, _ = generateStruct(table, ADMINLIST)
 					} else {
 						insertStr, _ = generateStruct(table, GOLIST)
