@@ -26,11 +26,11 @@ var rootCmd = &cobra.Command{
 	Use: "gen",
 	Run: func(cmd *cobra.Command, args []string) {
 		if dbname == "" {
-			fmt.Println("no such flag --password")
+			fmt.Println("please input database name")
 			return
 		}
 		if tableName == "" {
-			fmt.Println("no such flag --password")
+			fmt.Println("please input table name")
 			return
 		}
 		// init db
