@@ -166,14 +166,14 @@ func apiListGoHandler(cs []columns) (st string, err error) {
 				return
 			}
 			fs := fmt.Sprintf(`  {
-    Key: '%s',
-    Title: '%s',
+    Key: "%s",
+    Title: "%s",
   },`,
 				c.ColumnName, c.Remark)
 			col = append(col, fs)
 		}
 	}
-	return fmt.Sprintf("var exportcolumns = []exportColumns{ \n%s\n}", strings.Join(col, "\n")), err
+	return fmt.Sprintf("var exportcolumns = []excel.ExportColumns{ \n%s\n}", strings.Join(col, "\n")), err
 
 }
 

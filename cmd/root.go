@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"database/sql"
 	"fmt"
 	"os"
 	"strings"
@@ -39,6 +40,12 @@ var rootCmd = &cobra.Command{
 			fmt.Println(err)
 			return
 		}
+		defer func(mysql *sql.DB) {
+			err := mysql.Close()
+			if err != nil {
+				fmt.Println(err)
+			}
+		}(mysql)
 		// init params
 		tables := strings.Split(tableName, ",")
 		for _, table := range tables {
@@ -46,7 +53,7 @@ var rootCmd = &cobra.Command{
 			path := make(map[string]string)
 			tag := ""
 			if model {
-				tag = "backend/dao/" + tags + "d/"
+				tag = "backend/model/" + tags + "d/"
 				path[tag] = tag + table + ".go"
 			}
 			if admin {
@@ -66,8 +73,10 @@ var rootCmd = &cobra.Command{
 					return
 				}
 
-				insertStr := genDAO(table)
-				if admin {
+				insertStr := ""
+				if strings.Contains(k, "backend/model/") {
+					insertStr = genDAO(table)
+				} else if admin {
 					if strings.Contains(k, "/model/") {
 						insertStr = genAPI(table)
 					} else {
